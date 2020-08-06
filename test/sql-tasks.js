@@ -12,7 +12,7 @@ describe('sql-tasks', function() {
         dbconnection = await mysql.createConnection({
             host     : process.env.HOST || 'localhost',
             user     : process.env.USER_NAME || 'root',
-            password : process.env.PASSWORD || 'C458mJj1',
+            password : process.env.PASSWORD || 'password',
             database : process.env.DATABASE || 'northwind'
         })
     });
