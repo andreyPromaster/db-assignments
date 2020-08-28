@@ -98,7 +98,7 @@ async function task_1_4(db) {
             JOIN
         Customers ON Customers.CustomerID = Orders.CustomerID
     GROUP BY Customers.CustomerID
-    ORDER BY COUNT(*)/(SELECT COUNT(*) FROM Orders)*100 DESC , Customers.CustomerID ASC;`);
+    ORDER BY 3 DESC , Customers.CustomerID ASC;`);
 
     return result[0];
 }
@@ -140,9 +140,9 @@ async function task_1_6(db) {
         CompanyName AS 'SupplierCompanyName'
     FROM
         Products
-            JOIN
+        INNER JOIN
         Suppliers ON Suppliers.supplierid = Products.supplierid
-            JOIN
+        INNER JOIN
         Categories ON Categories.CategoryID = Products.CategoryID
     ORDER BY ProductName , SupplierCompanyName;`);
     
@@ -323,18 +323,21 @@ async function task_1_14(db) {
  */
 async function task_1_15(db) {
     let result = await db.query(`
-    select (select count(*) from Orders where YEAR(OrderDate) = 1997 and MONTH(OrderDate) = 1) as January,
-    (select count(*) from Orders where YEAR(OrderDate) = 1997 and MONTH(OrderDate) = 2) as February,
-    (select count(*) from Orders where YEAR(OrderDate) = 1997 and MONTH(OrderDate) = 3) as March,
-    (select count(*) from Orders where YEAR(OrderDate) = 1997 and MONTH(OrderDate) = 4) as April,
-    (select count(*) from Orders where YEAR(OrderDate) = 1997 and MONTH(OrderDate) = 5) as May,
-    (select count(*) from Orders where YEAR(OrderDate) = 1997 and MONTH(OrderDate) = 6) as June,
-    (select count(*) from Orders where YEAR(OrderDate) = 1997 and MONTH(OrderDate) = 7) as July,
-    (select count(*) from Orders where YEAR(OrderDate) = 1997 and MONTH(OrderDate) = 8) as August,
-    (select count(*) from Orders where YEAR(OrderDate) = 1997 and MONTH(OrderDate) = 9) as September,
-    (select count(*) from Orders where YEAR(OrderDate) = 1997 and MONTH(OrderDate) = 10) as October,
-    (select count(*) from Orders where YEAR(OrderDate) = 1997 and MONTH(OrderDate) = 11) as November,
-    (select count(*) from Orders where YEAR(OrderDate) = 1997 and MONTH(OrderDate) = 12) as December;`);
+    SELECT
+    COUNT(IF((MONTH(OrderDate) = 1), 1, NULL)) AS January,
+    COUNT(IF((MONTH(OrderDate) = 2), 1, NULL)) AS February,
+    COUNT(IF((MONTH(OrderDate) = 3), 1, NULL)) AS March,
+    COUNT(IF((MONTH(OrderDate) = 4), 1, NULL)) AS April,
+    COUNT(IF((MONTH(OrderDate) = 5), 1, NULL)) AS May,
+    COUNT(IF((MONTH(OrderDate) = 6), 1, NULL)) AS June,
+    COUNT(IF((MONTH(OrderDate) = 7), 1, NULL)) AS July,
+    COUNT(IF((MONTH(OrderDate) = 8), 1, NULL)) AS August,
+    COUNT(IF((MONTH(OrderDate) = 9), 1, NULL)) AS September,
+    COUNT(IF((MONTH(OrderDate) = 10), 1, NULL))  AS October,
+    COUNT(IF((MONTH(OrderDate) = 11), 1, NULL))  AS November,
+    COUNT(IF((MONTH(OrderDate) = 12), 1, NULL))  AS December
+FROM Orders
+WHERE YEAR(OrderDate) = 1997`);
     
     return result[0];
 }
@@ -424,8 +427,8 @@ async function task_1_19(db) {
             JOIN
         OrderDetails ON OrderDetails.OrderID = Orders.OrderID
     GROUP BY Customers.CustomerID
-    HAVING SUM(UnitPrice * Quantity) > 10000
-    ORDER BY SUM(UnitPrice * Quantity) DESC , Orders.CustomerID;`);
+    HAVING \`TotalOrdersAmount, $\` > 10000
+    ORDER BY \`TotalOrdersAmount, $\` DESC , Orders.CustomerID;`);
         
     return result[0];
 }
