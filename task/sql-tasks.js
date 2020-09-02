@@ -446,9 +446,9 @@ async function task_1_20(db) {
     WITH 
     t as (select Employees.EmployeeID, CONCAT(FirstName, ' ', LastName) AS FullName, sum(UnitPrice * Quantity) as amount
     FROM Orders
-            JOIN
+            INNER JOIN
         Employees ON Employees.EmployeeID = Orders.EmployeeID
-            JOIN
+            INNER JOIN
         OrderDetails ON OrderDetails.OrderID = Orders.OrderID
     GROUP BY Employees.EmployeeID)
     SELECT 
@@ -499,29 +499,30 @@ async function task_1_21(db) {
  */
 async function task_1_22(db) {
     let result = await db.query(`
+ 
     SELECT DISTINCT
         t_Cust.CompanyName,
         t_Prod.ProductName,
         t_OrderD.UnitPrice AS PricePerItem
     FROM
         Customers AS t_Cust
-            JOIN
+            INNER JOIN
         Orders AS t_Order ON t_Order.CustomerID = t_Cust.CustomerID
-            JOIN
+            INNER JOIN
         OrderDetails AS t_OrderD ON t_OrderD.OrderID = t_Order.OrderID
-            JOIN
+            INNER JOIN
         Products AS t_Prod ON t_OrderD.ProductID = t_Prod.ProductID
     WHERE
         t_OrderD.UnitPrice = (SELECT 
                 MAX(t1_OrderD.UnitPrice)
             FROM
                 Customers AS t1_Cust
-                    JOIN
+                    INNER JOIN
                 Orders AS t1_Order ON t1_Order.CustomerID = t1_Cust.CustomerID
-                    JOIN
+                    INNER JOIN
                 OrderDetails AS t1_OrderD ON t1_Order.OrderID = t1_OrderD.OrderID
             WHERE
-                t1_Cust.CompanyName = t_Cust.CompanyName)
+                t1_Cust.CustomerID = t_Cust.CustomerID)
     ORDER BY PricePerItem DESC , CompanyName , ProductName
     `);
             
