@@ -501,28 +501,24 @@ async function task_1_22(db) {
     let result = await db.query(`
  
     SELECT DISTINCT
-        t_Cust.CompanyName,
-        t_Prod.ProductName,
-        t_OrderD.UnitPrice AS PricePerItem
+        CompanyName, ProductName, Price AS PricePerItem
     FROM
-        Customers AS t_Cust
+        (SELECT 
+            Customers.CompanyName,
+                Customers.CustomerID,
+                MAX(UnitPrice) AS Price
+        FROM
+            Customers
+        INNER JOIN Orders ON Orders.CustomerID = Customers.CustomerID
+        INNER JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
+        GROUP BY Customers.CustomerID) AS t
             INNER JOIN
-        Orders AS t_Order ON t_Order.CustomerID = t_Cust.CustomerID
+        Orders ON Orders.CustomerID = t.CustomerID
             INNER JOIN
-        OrderDetails AS t_OrderD ON t_OrderD.OrderID = t_Order.OrderID
+        OrderDetails ON Orders.OrderID = OrderDetails.OrderID
+            AND OrderDetails.UnitPrice = t.Price
             INNER JOIN
-        Products AS t_Prod ON t_OrderD.ProductID = t_Prod.ProductID
-    WHERE
-        t_OrderD.UnitPrice = (SELECT 
-                MAX(t1_OrderD.UnitPrice)
-            FROM
-                Customers AS t1_Cust
-                    INNER JOIN
-                Orders AS t1_Order ON t1_Order.CustomerID = t1_Cust.CustomerID
-                    INNER JOIN
-                OrderDetails AS t1_OrderD ON t1_Order.OrderID = t1_OrderD.OrderID
-            WHERE
-                t1_Cust.CustomerID = t_Cust.CustomerID)
+        Products ON Products.ProductID = OrderDetails.ProductID
     ORDER BY PricePerItem DESC , CompanyName , ProductName
     `);
             
